@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Display", "Display\Display\Display.csproj", "{A59B77D5-772F-4C33-8D1F-51D689B8B1C6}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "DisplayContent", "Display\DisplayContent\DisplayContent.contentproj", "{865B028F-EB2A-4941-95D0-C17EFAAB6D3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A59B77D5-772F-4C33-8D1F-51D689B8B1C6}.Debug|x86.ActiveCfg = Debug|x86
+		{A59B77D5-772F-4C33-8D1F-51D689B8B1C6}.Debug|x86.Build.0 = Debug|x86
+		{A59B77D5-772F-4C33-8D1F-51D689B8B1C6}.Release|x86.ActiveCfg = Release|x86
+		{A59B77D5-772F-4C33-8D1F-51D689B8B1C6}.Release|x86.Build.0 = Release|x86
+		{865B028F-EB2A-4941-95D0-C17EFAAB6D3D}.Debug|x86.ActiveCfg = Debug|x86
+		{865B028F-EB2A-4941-95D0-C17EFAAB6D3D}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
