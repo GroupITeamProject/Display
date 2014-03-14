@@ -19,9 +19,18 @@ namespace Display
             string line;
 
             // Read the file and display it line by line.
-            System.IO.StreamReader file = new System.IO.StreamReader("C:\\WORDS.txt");
+            System.IO.StreamReader file = new System.IO.StreamReader(FileLocation);
             while ((line = file.ReadLine()) != null)
             {
+
+                //This will Split the string into an array
+                String[] temp = line.Split(',');
+
+                foreach (String s in temp)
+                {
+                    Console.WriteLine(s);
+                }
+
                 WordList.Add(line);
             }
 

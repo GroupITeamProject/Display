@@ -11,19 +11,19 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Display
 {
-    /// <summary>
-    /// This is the main type for your game
-    /// </summary>
+    // This is the class called from Program.cs 
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        //A font class will hold the XML of the font to be printed.
         SpriteFont x;
 
-        Texture2D texture;
+        //A Dictionary takes in a string of words from a file
+        Dictionary<string, int> Words = new Dictionary<string, int>();
 
-        List<string> Words = new List<string>();
-        CreateList test = new CreateList("C:\\WORDS.txt");
+        //An int to move words left in the draw method
         int totheleft = 10;
         
 
@@ -41,8 +41,6 @@ namespace Display
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -55,16 +53,14 @@ namespace Display
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            //Assigning x to be the XML file Myfont
             x = Content.Load<SpriteFont>("MyFont");
 
-            texture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            texture.SetData<Color>(new Color[] { Color.White });
-            
+            //The List of Words = the list of words generated from the file.
 
+            FileAnalyser FA = new FileAnalyser("C:\\Users\\Mini-EPIC\\Documents\\EVE\\logs\\Chatlogs\\Rookie_Help_20130120_225718.txt");
 
-            Words = test.WordList;
-
-            // TODO: use this.Content to load your game content here
+            Words = FA.getDictionary();
         }
 
         /// <summary>
@@ -73,7 +69,7 @@ namespace Display
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            //In here we would unload the files when the back button is pressed.
         }
 
         /// <summary>
@@ -83,12 +79,13 @@ namespace Display
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            // Allows the game to exit by pressing 
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                || Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Escape) )
+
                 this.Exit();
 
             // TODO: Add your update logic here
-
 
             base.Update(gameTime);
         }
@@ -105,12 +102,17 @@ namespace Display
 
             //spriteBatch.Draw(texture, new Rectangle(100, 100, 10, 10), Color.White);
 
-            for (int i = 0; i < Words.Count; i++)
+            int i = 0;
+
+            foreach(var word in Words)
             {
-              
-                spriteBatch.DrawString(x, Words[i], new Vector2(10 + totheleft, 10 + (30 * i)), Color.White,
-                    (float)0.0, new Vector2(), (float)(Words.Count - i) * 0.25f, SpriteEffects.None, (float)1.0);
-                
+
+                spriteBatch.DrawString(x, word.Key, new Vector2(10 + totheleft, i), Color.White,
+                    (float)0.0, new Vector2(), 1.0f, SpriteEffects.None, (float)1.0);
+                spriteBatch.DrawString(x, word.Value.ToString(), new Vector2(100 + totheleft, i), Color.White,
+                    (float)0.0, new Vector2(), 1.0f, SpriteEffects.None, (float)1.0);
+
+                i = i + 10;
             }
 
             totheleft++;
