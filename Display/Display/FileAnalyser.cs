@@ -107,7 +107,7 @@ namespace Display
                 /*
                  Uses StreamWriter to write all the pairs of keys and values to a text file.
                  */
-                using (StreamWriter writer = new StreamWriter("fileOutput.txt"))
+                using (StreamWriter writer = new StreamWriter("FileOutput.txt"))
                     foreach (var entry in items)
 
                         writer.WriteLine("{0},{1}", entry.Key, entry.Value);

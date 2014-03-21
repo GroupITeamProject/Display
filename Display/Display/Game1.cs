@@ -56,9 +56,9 @@ namespace Display
             //Assigning x to be the XML file Myfont
             x = Content.Load<SpriteFont>("MyFont");
 
-            //The List of Words = the list of words generated from the file.
+            new WebScrap("http://en.wikipedia.org/wiki/Ireland");
 
-            FileAnalyser FA = new FileAnalyser("C:\\Users\\Mini-EPIC\\Documents\\EVE\\logs\\Chatlogs\\Rookie_Help_20130120_225718.txt");
+            FileAnalyser FA = new FileAnalyser("webOutput.txt");
 
             Words = FA.getDictionary();
         }
