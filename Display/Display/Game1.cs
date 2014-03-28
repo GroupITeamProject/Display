@@ -38,6 +38,8 @@ namespace Display
 
         String MovingRec = "";
 
+        
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -178,7 +180,6 @@ namespace Display
                 if (myMouse.LeftButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y))
                 {
                     MovingRec = rec.Key;
-                    MousePressed = true;
                 }
 
                 if (myMouse.LeftButton == ButtonState.Released && MovingRec != "")
