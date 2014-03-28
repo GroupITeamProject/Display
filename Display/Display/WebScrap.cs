@@ -15,7 +15,7 @@ namespace Display
         public WebScrap()
         {
             WebClient w = new WebClient();
-            String s = w.DownloadString("http://en.wikipedia.org/wiki/Hitler");
+            String s = w.DownloadString("http://en.wikipedia.org/");
             Regex x = new Regex("<[^>]*>");
             //String target = s.replaceAll("(?i)<td[^>]*>", " ").replaceAll("\\s+", " ").trim();
             String ss = x.Replace(s, " ");

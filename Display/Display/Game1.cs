@@ -17,15 +17,26 @@ namespace Display
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Texture2D myTexture;
+
         //A font class will hold the XML of the font to be printed.
-        SpriteFont x;
+        SpriteFont font, font2;
 
         //A Dictionary takes in a string of words from a file
         Dictionary<string, int> Words = new Dictionary<string, int>();
 
+        //A Dictionary to hold Strings and Rectangles
+        Dictionary<string, Rectangle> RectangleDictionary = new Dictionary<string, Rectangle>();
+
+        //A dictionary to Hold the colors for the strings
+        Dictionary<string, Color> ColorsDictionary = new Dictionary<string, Color>();
+
         //An int to move words left in the draw method
         int totheleft = 10;
-        
+
+        MouseState myMouse;
+
+        String MovingRec = "";
 
         public Game1()
         {
@@ -41,6 +52,7 @@ namespace Display
         /// </summary>
         protected override void Initialize()
         {
+            IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -54,13 +66,77 @@ namespace Display
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //Assigning x to be the XML file Myfont
-            x = Content.Load<SpriteFont>("MyFont");
+            font = Content.Load<SpriteFont>("MyFont");
+
+            myTexture = new Texture2D(GraphicsDevice, 1, 1);
+            myTexture.SetData(new Color[] { Color.Tomato });
 
             new WebScrap("http://en.wikipedia.org/wiki/Ireland");
 
             FileAnalyser FA = new FileAnalyser("webOutput.txt");
 
             Words = FA.getDictionary();
+
+            int rows = 100;
+            int cols = 100;
+
+            int wordlimit = 15;
+            int wordlimitcurrent = 0;
+            
+            foreach(var word in Words)
+            {
+                if(wordlimit <= wordlimitcurrent)
+                {
+                    break;
+                }
+
+                String recName = word.Key;
+
+                Vector2 StringSize = font.MeasureString(recName);
+                
+                if (RectangleDictionary.Count == 0)
+                {
+
+                    RectangleDictionary.Add(recName,
+                        new Rectangle(this.GraphicsDevice.Viewport.Height / 2,
+                                        this.GraphicsDevice.Viewport.Width / 2,
+                                    (int)StringSize.X,
+                                    (int)StringSize.Y));
+
+                    ColorsDictionary.Add(recName, Color.White);
+                }
+                else
+                {
+
+                    RectangleDictionary.Add(recName, new Rectangle(cols, rows, (int)StringSize.X, (int)StringSize.Y));
+                    ColorsDictionary.Add(recName, Color.White);
+                }
+
+                if (RectangleDictionary.Count == 10)
+                {
+                    cols += (int)StringSize.X + 100;
+                    rows = 0;
+                }
+
+                if (RectangleDictionary.Count == 20)
+                {
+                    cols += (int)StringSize.X + 100;
+                    rows = 0;
+                }
+
+                if (RectangleDictionary.Count == 30)
+                {
+                    cols += (int)StringSize.X + 100;
+                    rows = 0;
+                }
+
+                rows += (int)StringSize.Y + 10;
+
+                wordlimitcurrent++;
+
+            }
+
+            
         }
 
         /// <summary>
@@ -85,6 +161,40 @@ namespace Display
 
                 this.Exit();
 
+            myMouse = Mouse.GetState();
+
+            foreach (var rec in RectangleDictionary)
+            {
+
+                if (rec.Value.Contains(myMouse.X, myMouse.Y))
+                {
+                    ColorsDictionary[rec.Key] = Color.Green;
+                }
+                else
+                {
+                    ColorsDictionary[rec.Key] = Color.White;
+                }
+
+                if (myMouse.LeftButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y))
+                {
+                    MovingRec = rec.Key;
+                    MousePressed = true;
+                }
+
+                if (myMouse.LeftButton == ButtonState.Released && MovingRec != "")
+                {
+                    if (rec.Key == MovingRec)
+                    {
+                        String temp = rec.Key;
+                        RectangleDictionary.Remove(rec.Key);
+                        break;
+                    }
+                }
+
+            }
+
+            
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -100,24 +210,32 @@ namespace Display
 
             spriteBatch.Begin();
 
-            //spriteBatch.Draw(texture, new Rectangle(100, 100, 10, 10), Color.White);
+            /*spriteBatch.DrawString(font, this.GraphicsDevice.Viewport.Height.ToString(),
+                                    new Vector2(400, 400), Color.Red);
+            spriteBatch.DrawString(font, this.GraphicsDevice.Viewport.Width.ToString(),
+                                    new Vector2(400, 410), Color.Red);
+             */
 
             int i = 0;
 
-            foreach(var word in Words)
+            foreach(var rec in RectangleDictionary)
             {
+                Vector2 V = new Vector2(rec.Value.X, rec.Value.Y);
 
-                spriteBatch.DrawString(x, word.Key, new Vector2(10 + totheleft, i), Color.White,
-                    (float)0.0, new Vector2(), 1.0f, SpriteEffects.None, (float)1.0);
-                spriteBatch.DrawString(x, word.Value.ToString(), new Vector2(100 + totheleft, i), Color.White,
-                    (float)0.0, new Vector2(), 1.0f, SpriteEffects.None, (float)1.0);
+                spriteBatch.Draw(myTexture, rec.Value,null, Color.Black,0.0f, new Vector2(),SpriteEffects.None,0.0f);
 
-                i = i + 10;
+                spriteBatch.DrawString(font, rec.Key, V, ColorsDictionary[rec.Key],
+                    0.0f, new Vector2(), 1.0f, SpriteEffects.None, (float)1.0);
+
+                //spriteBatch.Draw(myTexture, rec.Value, Color.Black);
+
+                //i = i + 10;
             }
 
             totheleft++;
 
             spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
