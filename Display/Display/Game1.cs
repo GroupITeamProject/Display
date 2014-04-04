@@ -40,7 +40,9 @@ namespace Display
         MouseState myMouse;
 
         String MovingRec = "";
-
+        Rectangle menu;
+        SpriteFont menufont;
+        String menustr = "";
 
 
         public Game1()
@@ -48,6 +50,7 @@ namespace Display
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
+
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -59,6 +62,7 @@ namespace Display
         {
             IsMouseVisible = true;
             base.Initialize();
+
         }
 
         /// <summary>
@@ -69,6 +73,7 @@ namespace Display
         {
             Random rnd = new Random();
             rnum = rnd.Next(0, 15);
+            menufont = Content.Load<SpriteFont>("MyFont");
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -101,9 +106,10 @@ namespace Display
 
                 String recName = word.Key;
                 SpriteFont myfont = Content.Load<SpriteFont>("MyFont");
+                Color mycolor = Color.White;
                 
                 FontDictionary.Add(word.Key, myfont);
-
+                ColorsDictionary.Add(word.Key, mycolor);
                 Vector2 StringSize = new Vector2(30, 20);
                 foreach (var font in FontDictionary)
                 {
@@ -119,13 +125,13 @@ namespace Display
                                     (int)StringSize.X,
                                     (int)StringSize.Y));
 
-                    ColorsDictionary.Add(recName, Color.White);
+
                 }
                 else
                 {
 
                     RectangleDictionary.Add(recName, new Rectangle(cols, rows, (int)StringSize.X, (int)StringSize.Y));
-                    ColorsDictionary.Add(recName, Color.White);
+
                 }
 
                 if (RectangleDictionary.Count == 10)
@@ -179,67 +185,94 @@ namespace Display
                 this.Exit();
 
             myMouse = Mouse.GetState();
-
+            KeyboardState state = Keyboard.GetState();
 
             foreach (var rec in RectangleDictionary)
             {
-    
-                    if (rec.Value.Contains(myMouse.X, myMouse.Y))
-                    {
-                        ColorsDictionary[rec.Key] = Color.Green;
-                    }
-                    else
-                    {
-                        ColorsDictionary[rec.Key] = Color.White;
-                    }
+                if (rec.Value.Contains(myMouse.X, myMouse.Y) && menu.Contains(myMouse.X, myMouse.Y) == false)
+                 {
+ 
+                     ColorsDictionary[rec.Key] = Color.Green;
+                 }
+                 
+                 else 
+                 {
 
-                    if (myMouse.LeftButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y))
-                    {
-                        MovingRec = rec.Key;
-                    }
+                     ColorsDictionary[rec.Key] = Color.White;
+                 }
 
-                    if (myMouse.LeftButton == ButtonState.Released && MovingRec != "")
-                    {
-                        if (rec.Key == MovingRec)
-                        {
-                            String temp = rec.Key;
-                            RectangleDictionary.Remove(rec.Key);
-                            break;
-                        }
-                    }
-                    //int mousecount = 0;
-                    if (myMouse.RightButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y))
-                    {
+            
+                if (myMouse.RightButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y))
+                {
+                    menustr = "Change Color";
+                    Vector2 menufontsiz = menufont.MeasureString(menustr);
+                    menu = new Rectangle(myMouse.X, myMouse.Y, (int)menufontsiz.X, (int)menufontsiz.Y);
 
-                        Vector2 strsiz = new Vector2();
-                        //int test = 0;
-                        foreach (var font in FontDictionary)
-                        {
-                            if (rec.Key == font.Key) 
-                            {
-                                FontDictionary[font.Key] = Content.Load<SpriteFont>("MyFont2");
-                                break;
-                            }
 
-                            strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
+                }
+                if (myMouse.LeftButton == ButtonState.Pressed && menu.Contains(myMouse.X, myMouse.Y) )
+                {
+                    
+                            ColorsDictionary[rec.Key] = Color.Red; 
                             
-                            
-                        }
-                        
-                      
-                        /*
-                        foreach (var font in FontDictionary)
-                        {
-                            strsiz = font.Value.MeasureString(rec.Key);
-                        }
-                        */
-                        int ox = rec.Value.X;
-                        int oy = rec.Value.Y;
-                        int newrx = (int)strsiz.X;
-                        int newry = (int)strsiz.Y;
-                        RectangleDictionary[rec.Key] = new Rectangle(ox, oy, newrx, newry);
+                       
+                }
+            if (myMouse.LeftButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y) == false && menu.Contains(myMouse.X, myMouse.Y) == false )
+                {
+                    menustr = "";
+                    menu = new Rectangle();
+                    //ColorsDictionary[rec.Key] = Color.White;
+
+                }
+
+
+
+                if (myMouse.LeftButton == ButtonState.Pressed && rec.Value.Contains(myMouse.X, myMouse.Y) && menu.Contains(myMouse.X, myMouse.Y)== false)
+                {
+                    MovingRec = rec.Key;
+                }
+
+                if (myMouse.LeftButton == ButtonState.Released && MovingRec != "" && menu.Contains(myMouse.X, myMouse.Y) == false)
+                {
+                    if (rec.Key == MovingRec)
+                    {
+                        String temp = rec.Key;
+                        RectangleDictionary.Remove(rec.Key);
                         break;
                     }
+                }
+
+
+                if (state.IsKeyDown(Keys.D) && rec.Value.Contains(myMouse.X, myMouse.Y))
+                {
+
+                    Vector2 strsiz = new Vector2();
+                 
+                    foreach (var font in FontDictionary)
+                    {
+                        if (rec.Key == font.Key)
+                        {
+                            FontDictionary[font.Key] = Content.Load<SpriteFont>("MyFont2");
+                            break;
+                        }
+
+                        strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
+
+
+                    }
+
+
+
+
+                    int ox = rec.Value.X;
+                    int oy = rec.Value.Y;
+                    int newrx = (int)strsiz.X;
+                    int newry = (int)strsiz.Y;
+                    RectangleDictionary[rec.Key] = new Rectangle(ox, oy, newrx, newry);
+                    break;
+                }
+
+
 
             }
 
@@ -277,33 +310,35 @@ namespace Display
                 Vector2 strorigin = new Vector2();
                 Vector2 recorigin = new Vector2();
                 Vector2 strsiz = new Vector2();
-               /* foreach (var font in FontDictionary)
-                {
-                    strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
-                }*/
+                /* foreach (var font in FontDictionary)
+                 {
+                     strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
+                 }*/
                 float recangle = 0.0f;
                 float strangle = 0.0f;
                 int l = rec.Value.Left;
                 int b = rec.Value.Bottom;
-               /* if (rnum == count)
-                {
-                    recangle = 0.0f;
-                    recorigin = new Vector2();
+                /* if (rnum == count)
+                 {
+                     recangle = 0.0f;
+                     recorigin = new Vector2();
 
-                    strangle = (float)Math.PI;
-                    strorigin = new Vector2((int)strsiz.X, (int)strsiz.Y);
+                     strangle = (float)Math.PI;
+                     strorigin = new Vector2((int)strsiz.X, (int)strsiz.Y);
                     
 
-                }*/
+                 }*/
                 spriteBatch.Draw(myTexture, rec.Value, null, Color.Black, recangle, recorigin, SpriteEffects.None, 0.0f);
-               
-                    spriteBatch.DrawString(FontDictionary[rec.Key], rec.Key, V, ColorsDictionary[rec.Key],
-                        strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
-                
 
-                //spriteBatch.Draw(myTexture, rec.Value, Color.Black);
+                spriteBatch.DrawString(FontDictionary[rec.Key], rec.Key, V, ColorsDictionary[rec.Key],
+                        strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
+               
+                spriteBatch.Draw(myTexture, menu, null, Color.Tomato, 0.0f, new Vector2(), SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(menufont, menustr, new Vector2(menu.X, menu.Y), Color.Black);
+
+                
                 count++;
-                //i = i + 10;
+               
             }
 
             totheleft++;
