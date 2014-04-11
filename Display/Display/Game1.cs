@@ -125,7 +125,7 @@ namespace Display
             //wordlimitcurrent used to check if you have reach word limit
             int wordlimitcurrent = 0;
 
-            //wordcloud = Content.Load<Texture2D>("cloud");
+            wordcloud = Content.Load<Texture2D>("dayCastle");
 
             //foreach used to go through words dictionary
             foreach (var word in Words)
@@ -415,6 +415,8 @@ namespace Display
                     
 
                  }*/
+                spriteBatch.Draw(wordcloud, new Vector2(), null, Color.White);
+                
                 //Draws all the rectangles
                 spriteBatch.Draw(myTexture, rec.Value, null, Color.Black, recangle, recorigin, SpriteEffects.None, 0.0f);
 
@@ -423,7 +425,7 @@ namespace Display
                         strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
 
 
-                //spriteBatch.Draw(wordcloud, V, null, Color.White);
+                
 
                 //color of menu Background
                 Color Menucol = Color.Peru;
