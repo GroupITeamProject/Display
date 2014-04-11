@@ -129,8 +129,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="daySkyline.png">
-      <Name>daySkyline</Name>
+    <Compile Include="daySkyline1.png">
+      <Name>daySkyline1</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

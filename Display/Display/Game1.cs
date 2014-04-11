@@ -92,7 +92,7 @@ namespace Display
             Random rnd = new Random();
             //rnum set to random number between 0 and 15
             rnum = rnd.Next(0, 15);
-            int ranback = rnd.Next(1, 3);
+            int ranback = rnd.Next(1, 4);
             //menufont loaded as Menufont.spritefont from the content of the project
             menufont = Content.Load<SpriteFont>("MenuFont");
 
@@ -125,7 +125,7 @@ namespace Display
 
             //wordlimitcurrent used to check if you have reach word limit
             int wordlimitcurrent = 0;
-            if (ranback == 1)
+            if (ranback == 3)
             {
                 wordcloud = Content.Load<Texture2D>("dayCastle1");
             }
@@ -133,9 +133,9 @@ namespace Display
             {
             wordcloud = Content.Load<Texture2D>("dayMountain");
             }
-            else if (ranback == 3)
+            else if (ranback == 1)
             {
-                wordcloud = Content.Load<Texture2D>("daySkyline");
+                wordcloud = Content.Load<Texture2D>("daySkyline1");
             }
 
             //foreach used to go through words dictionary
