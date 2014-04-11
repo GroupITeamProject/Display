@@ -16,7 +16,7 @@ namespace Display
     {
         //new GraphicsDeviceManager called graphics
         GraphicsDeviceManager graphics;
-
+        bool backdrawn = false;
         //new SpriteBatch called spriteBatc
         SpriteBatch spriteBatch;
 
@@ -92,6 +92,7 @@ namespace Display
             Random rnd = new Random();
             //rnum set to random number between 0 and 15
             rnum = rnd.Next(0, 15);
+            int ranback = rnd.Next(1, 3);
             //menufont loaded as Menufont.spritefont from the content of the project
             menufont = Content.Load<SpriteFont>("MenuFont");
 
@@ -124,8 +125,18 @@ namespace Display
 
             //wordlimitcurrent used to check if you have reach word limit
             int wordlimitcurrent = 0;
-
-            wordcloud = Content.Load<Texture2D>("dayCastle");
+            if (ranback == 1)
+            {
+                wordcloud = Content.Load<Texture2D>("dayCastle1");
+            }
+            else if (ranback == 2)
+            {
+            wordcloud = Content.Load<Texture2D>("dayMountain");
+            }
+            else if (ranback == 3)
+            {
+                wordcloud = Content.Load<Texture2D>("daySkyline");
+            }
 
             //foreach used to go through words dictionary
             foreach (var word in Words)
@@ -385,7 +396,7 @@ namespace Display
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-
+            spriteBatch.Draw(wordcloud, new Vector2(0, 0), Color.White);
             int count = 0;
             //foreach to work through rectangle dictionary
             foreach (var rec in RectangleDictionary)
@@ -415,8 +426,10 @@ namespace Display
                     
 
                  }*/
-                spriteBatch.Draw(wordcloud, new Vector2(), null, Color.White);
                 
+           
+
+               
                 //Draws all the rectangles
                 spriteBatch.Draw(myTexture, rec.Value, null, Color.Black, recangle, recorigin, SpriteEffects.None, 0.0f);
 
