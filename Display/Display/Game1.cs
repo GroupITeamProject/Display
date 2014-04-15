@@ -16,7 +16,7 @@ namespace Display
     {
         //new GraphicsDeviceManager called graphics
         GraphicsDeviceManager graphics;
-        bool backdrawn = false;
+        float timer; 
         //new SpriteBatch called spriteBatc
         SpriteBatch spriteBatch;
 
@@ -43,12 +43,23 @@ namespace Display
         //Dictionary<string, Texture2D> SpriteDictionary = new Dictionary<string, Texture2D>();
 
         //Texture2D
-        Texture2D wordcloud;
+        Texture2D backdraw;
+        Texture2D daybut;
+        Texture2D nightbut;
+        Rectangle dayrec;
+        Rectangle nightrec;
+
+        bool skyline = false;
+        bool castle = false;
+        bool mountain = false;
+
+   
 
         //An int to move words left in the draw method
         int totheleft = 10;
 
 
+      
 
         //initialze of rectangles to make up menu
         Rectangle menuCount;
@@ -66,6 +77,7 @@ namespace Display
 
         //int that counts how many times change color is presssed
         int countcol = 1;
+        int butpcount = 1;
 
         //constructer for Game1
         public Game1()
@@ -92,7 +104,7 @@ namespace Display
             Random rnd = new Random();
             //rnum set to random number between 0 and 15
             rnum = rnd.Next(0, 15);
-            int ranback = rnd.Next(1, 4);
+
             //menufont loaded as Menufont.spritefont from the content of the project
             menufont = Content.Load<SpriteFont>("MenuFont");
 
@@ -106,7 +118,7 @@ namespace Display
             myTexture = new Texture2D(GraphicsDevice, 1, 1);
 
             //set color of mytexture
-            myTexture.SetData(new Color[] { Color.Tomato });
+            myTexture.SetData(new Color[] { Color.White });
 
             //gets url you pass in
             // new WebScrap("http://en.wikipedia.org/wiki/Ireland");
@@ -122,21 +134,30 @@ namespace Display
             int cols = 100;
             //wordlimit setting how many words can be on the screen
             int wordlimit = 15;
-
+            int ranback = rnd.Next(1, 4);
             //wordlimitcurrent used to check if you have reach word limit
             int wordlimitcurrent = 0;
             if (ranback == 3)
             {
-                wordcloud = Content.Load<Texture2D>("dayCastle1");
+                backdraw = Content.Load<Texture2D>("dayCastle1");
+                castle = true;
             }
             else if (ranback == 2)
             {
-            wordcloud = Content.Load<Texture2D>("dayMountain");
+                backdraw = Content.Load<Texture2D>("dayMountain");
+                mountain = true;
             }
             else if (ranback == 1)
             {
-                wordcloud = Content.Load<Texture2D>("daySkyline1");
+                backdraw = Content.Load<Texture2D>("daySkyline1");
+                skyline = true;
             }
+            
+            nightbut = Content.Load<Texture2D>("moonbtn");
+            daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+             dayrec = new Rectangle(750, 380, nightbut.Bounds.Height, nightbut.Bounds.Width);
+            nightrec = new Rectangle(750, 430, nightbut.Bounds.Height, nightbut.Bounds.Width);
+            //daybut = Content.Load<Texture2D>("sunbtn");
 
             //foreach used to go through words dictionary
             foreach (var word in Words)
@@ -151,13 +172,13 @@ namespace Display
                 //myfont loaded as MyFont.spritefont from the content of the project
                 SpriteFont myfont = Content.Load<SpriteFont>("MyFont");
                 //mycolor is a color which will be used to color the text
-                Color mycolor = Color.White;
+                Color mycolor = Color.Black;
 
                 //adds to the font dictionary a new value with the current word and myfont
                 FontDictionary.Add(word.Key, myfont);
                 //adds to the color dictionary a new value with the current word and mycolor
                 ColorsDictionary.Add(word.Key, mycolor);
-                //   SpriteDictionary.Add(word.Key, wordcloud);
+                //   SpriteDictionary.Add(word.Key, backdraw);
 
                 //Vector2 called StringSize initialized with x and y of 30 and 20
                 Vector2 StringSize = new Vector2(30, 20);
@@ -227,10 +248,97 @@ namespace Display
                 || Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Escape))
 
                 this.Exit();
+
             //new MouseState mymouse
             MouseState myMouse = Mouse.GetState();
             //new keyboardstate state
             KeyboardState state = Keyboard.GetState();
+          
+           
+            if (myMouse.LeftButton == ButtonState.Pressed && dayrec.Contains(myMouse.X, myMouse.Y))
+            {
+                if (skyline == true)
+                {
+                    if (butpcount == 0)
+                    {
+                        backdraw = Content.Load<Texture2D>("daySkyline1");
+                        nightbut = Content.Load<Texture2D>("moonbtn");
+                     
+                        butpcount++;
+                    }
+                   
+                }
+                if (castle == true)
+                {
+                    if (butpcount == 0)
+                    {
+                        backdraw = Content.Load<Texture2D>("dayCastle1");
+                        nightbut = Content.Load<Texture2D>("moonbtn");
+                        daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+               
+                        butpcount++;
+                    }
+                    
+                }
+                if (mountain == true)
+                {
+                    if (butpcount == 0)
+                    {
+                        backdraw = Content.Load<Texture2D>("dayMountain");
+                        nightbut = Content.Load<Texture2D>("moonbtn");
+                        daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                      
+                        butpcount++;
+                    }
+                    
+                }
+            }
+            if (myMouse.LeftButton == ButtonState.Pressed && nightrec.Contains(myMouse.X, myMouse.Y))
+            {
+                if (skyline == true)
+                {
+                    if (butpcount == 1)
+                    {
+                        backdraw = Content.Load<Texture2D>("nightSkyline");
+                        daybut = Content.Load<Texture2D>("sunbtn");
+                        nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                       
+                        butpcount = 0;
+                       
+                    }
+                }
+                if (castle == true)
+                {
+                    if (butpcount == 1)
+                    {
+                        backdraw = Content.Load<Texture2D>("nightCastle");
+                        daybut = Content.Load<Texture2D>("sunbtn");
+                        nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                    
+                 
+                        butpcount = 0;
+                    }
+                }
+                if (mountain == true)
+                {
+                    if (butpcount == 1)
+                    {
+                        backdraw = Content.Load<Texture2D>("nightMountain");
+                        daybut = Content.Load<Texture2D>("sunbtn");
+                        nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+       
+                        butpcount = 0;
+                    }
+                }
+            }
+
+
+           
+
+
+
+
+
 
             //foreach used to go through rectangle dictionary
             foreach (var rec in RectangleDictionary)
@@ -278,6 +386,7 @@ namespace Display
                     }
                 }
 
+
                 //if the menuitem color change is pressed 
                 if (myMouse.LeftButton == ButtonState.Pressed && menuColor.Contains(myMouse.X, myMouse.Y))
                 {
@@ -288,7 +397,7 @@ namespace Display
                         //method remove stuff
                         this.removestuff();
                         //color of word set to white
-                        ColorsDictionary[rec.Key] = Color.White;
+                        ColorsDictionary[rec.Key] = Color.Black;
                         //countcol incremented by one
                         countcol++;
                     }
@@ -396,7 +505,12 @@ namespace Display
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(wordcloud, new Vector2(0, 0), Color.White);
+            spriteBatch.Draw(backdraw, new Vector2(0, 0), Color.White);
+            spriteBatch.Draw(daybut, new Vector2(750, 380), Color.White);
+            spriteBatch.Draw(nightbut, new Vector2(750, 430), Color.White);
+
+            spriteBatch.Draw(myTexture, dayrec, Color.Transparent);
+            spriteBatch.Draw(myTexture, nightrec, Color.Transparent);
             int count = 0;
             //foreach to work through rectangle dictionary
             foreach (var rec in RectangleDictionary)
@@ -426,31 +540,33 @@ namespace Display
                     
 
                  }*/
-                
-           
 
-               
+
+
+
                 //Draws all the rectangles
-                spriteBatch.Draw(myTexture, rec.Value, null, Color.Black, recangle, recorigin, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(myTexture, rec.Value, null, Color.Snow, recangle, recorigin, SpriteEffects.None, 0.0f);
 
                 //Draws all the strings
                 spriteBatch.DrawString(FontDictionary[rec.Key], rec.Key, V, ColorsDictionary[rec.Key],
                         strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
 
 
-                
+
 
                 //color of menu Background
-                Color Menucol = Color.Peru;
+                Color Menucol = Color.Black;
+                Color Menufontcol = Color.White;
+
                 //draws menuitems
                 spriteBatch.Draw(myTexture, menuCount, null, Menucol, 0.0f, new Vector2(), SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(menufont, menuCountstr, new Vector2(menuCount.X, menuCount.Y), Color.Black);
+                spriteBatch.DrawString(menufont, menuCountstr, new Vector2(menuCount.X, menuCount.Y), Menufontcol);
                 spriteBatch.Draw(myTexture, menuColor, null, Menucol, 0.0f, new Vector2(), SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(menufont, menuColorstr, new Vector2(menuColor.X, menuColor.Y), Color.Black);
+                spriteBatch.DrawString(menufont, menuColorstr, new Vector2(menuColor.X, menuColor.Y), Menufontcol);
                 spriteBatch.Draw(myTexture, menuFont, null, Menucol, 0.0f, new Vector2(), SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(menufont, menuFontstr, new Vector2(menuFont.X, menuFont.Y), Color.Black);
+                spriteBatch.DrawString(menufont, menuFontstr, new Vector2(menuFont.X, menuFont.Y), Menufontcol);
                 spriteBatch.Draw(myTexture, menuRemove, null, Menucol, 0.0f, new Vector2(), SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(menufont, menuRemovestr, new Vector2(menuRemove.X, menuRemove.Y), Color.Black);
+                spriteBatch.DrawString(menufont, menuRemovestr, new Vector2(menuRemove.X, menuRemove.Y), Menufontcol);
 
                 //word count string
                 spriteBatch.DrawString(Content.Load<SpriteFont>("MyFont"), WordCountstr, new Vector2(10, 430), Color.Black);
