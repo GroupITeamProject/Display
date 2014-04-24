@@ -31,14 +31,12 @@ namespace Display
         // new Texture2D called myTexture
         Texture2D myTexture;
 
-
+        SoundEffect soundEffect;
+        SoundEffectInstance soundEffectInstance;
 
         //int called rnum
         int rnum;
-          bool c1edge;
-        int c1x = 200;
-        int c2x = 40;
-        int c3x  = 600;
+        
 
         //A Dictionary takes in a string of words from a file
         Dictionary<string, int> Words = new Dictionary<string, int>();
@@ -59,16 +57,18 @@ namespace Display
         Texture2D backdraw;
         Texture2D daybut;
         Texture2D nightbut;
-        Texture2D title;
-        Texture2D cloudone;
-        Texture2D cloudtwo;
-        Texture2D cloudthree;
-        Texture2D webcloud;
-        Texture2D filecloud;
-        Rectangle webrec;
-        Rectangle filerec;
+        Texture2D ssbut;
+        Texture2D musicbut;
+        Texture2D mutebut;
+        Texture2D homebut;
+      
         Rectangle dayrec;
         Rectangle nightrec;
+        Rectangle ssrec;
+        Rectangle musicrec;
+        Rectangle muterec;
+        Rectangle homerec;
+
         bool skyline = false;
         bool castle = false;
         bool mountain = false;
@@ -98,6 +98,7 @@ namespace Display
         //int that counts how many times change color is presssed
         int countcol = 1;
         int butpcount = 1;
+        int musicbutpcount = 1;
 
         //constructer for Game1
         public Game1()
@@ -114,6 +115,8 @@ namespace Display
             gameState = GameState.Menu;
             //Sets mouse to be visable
             IsMouseVisible = true;
+            soundEffect = Content.Load<SoundEffect>("Bass");//load soundeffect Bass.wav
+            soundEffectInstance = soundEffect.CreateInstance();
             base.Initialize();
 
         }
@@ -133,8 +136,6 @@ namespace Display
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-
-            //font = Content.Load<SpriteFont>("MyFont");
 
             //mytexture is equal to new  new texture2d of width and height of 1
             myTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -174,17 +175,28 @@ namespace Display
                 backdraw = Content.Load<Texture2D>("daySkyline1");
                 skyline = true;
             }
-            //cloudone = Content.Load<Texture2D>("cloud");
-            //cloudtwo = Content.Load<Texture2D>("CLOUD2");
-            //cloudthree = Content.Load<Texture2D>("cloud");
-            //filecloud = Content.Load<Texture2D>("fileCloud");
-            //webcloud = Content.Load<Texture2D>("urlCloud");
+
+
             nightbut = Content.Load<Texture2D>("moonbtn");
             daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
-             dayrec = new Rectangle(750, 390, nightbut.Bounds.Height, nightbut.Bounds.Width);
+            dayrec = new Rectangle(750, 390, nightbut.Bounds.Height, nightbut.Bounds.Width);
+         
             nightrec = new Rectangle(750, 430, nightbut.Bounds.Height, nightbut.Bounds.Width);
+
             WordCountCol = Color.White;
 
+            ssbut = Content.Load<Texture2D>("cam");
+            ssrec = new Rectangle(700, 430, ssbut.Bounds.Height, ssbut.Bounds.Width);
+
+            homebut = Content.Load<Texture2D>("home");
+            homerec = new Rectangle(10, 430, homebut.Bounds.Height, homebut.Bounds.Width);
+
+            musicbut = Content.Load<Texture2D>("Music");
+            musicrec = new Rectangle(60, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
+
+            mutebut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+            muterec = new Rectangle(120, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
+            
             //foreach used to go through words dictionary
             foreach (var word in Words)
             {
@@ -282,17 +294,62 @@ namespace Display
             MouseState myMouse = Mouse.GetState();
             //new keyboardstate state
             KeyboardState state = Keyboard.GetState();
-
+           // soundEffectInstance.Play();
             if (gameState == GameState.Menu)//if gamestate equals menu
             {
                 if (state.IsKeyDown(Keys.Enter))//if enter is pressed
                 {
                     gameState = GameState.Game;//gamestate equals game
+                    soundEffectInstance.Play();
                 }
 
             }
             else if (gameState == GameState.Game)
             {
+               // soundEffectInstance.Play();
+                if (myMouse.LeftButton == ButtonState.Pressed && homerec.Contains(myMouse.X, myMouse.Y))
+                {
+                    gameState = GameState.Menu;
+                    soundEffectInstance.Stop();
+                }
+               /* if (myMouse.LeftButton == ButtonState.Pressed && musicrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    if (musicbutpcount == 1)
+                    {
+                        musicbut = Content.Load<Texture2D>("mute");
+                        soundEffectInstance.Stop();
+                        musicbutpcount = 0;
+                    }
+                    if (musicbutpcount == 0)
+                    {
+                        musicbut = Content.Load<Texture2D>("Music");
+                        soundEffectInstance.Play();
+                        musicbutpcount++;
+                    }
+
+                }*/
+                if (myMouse.LeftButton == ButtonState.Pressed && muterec.Contains(myMouse.X, myMouse.Y))
+                {
+                    if (musicbutpcount == 0)
+                    {
+                        soundEffectInstance.Resume();
+                        musicbut = Content.Load<Texture2D>("music");
+                        mutebut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                        musicbutpcount++;
+                    }
+
+                }
+                if (myMouse.LeftButton == ButtonState.Pressed && musicrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    if (musicbutpcount == 1)
+                    {
+                        soundEffectInstance.Pause();
+                        musicbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                        mutebut = Content.Load<Texture2D>("mute");
+                        musicbutpcount = 0;
+                    }
+                }
+
                 if (myMouse.LeftButton == ButtonState.Pressed && dayrec.Contains(myMouse.X, myMouse.Y))
                 {
                     if (skyline == true)
@@ -370,8 +427,8 @@ namespace Display
                         }
                     }
                 }
-
-
+                
+               
 
 
 
@@ -583,38 +640,23 @@ namespace Display
 
                 spriteBatch.Begin();
                 spriteBatch.Draw(backdraw, new Vector2(0, 0), Color.White);
-                //spriteBatch.Draw(title, new Vector2(150, 30), Color.White);
-                // spriteBatch.Draw(cloudone, new Vector2(c1x, 200), Color.White);
-                // spriteBatch.Draw(cloudtwo, new Vector2(200, c2x), Color.White);
-                //spriteBatch.Draw(cloudthree, new Vector2(200, c3x), Color.White);
+               
                 spriteBatch.Draw(daybut, new Vector2(750, 390), Color.White);
-                spriteBatch.Draw(nightbut, new Vector2(750, 430), Color.White);
-                //spriteBatch.Draw(filecloud, new Vector2(20, 170), Color.White);
-                //spriteBatch.Draw(webcloud, new Vector2(430, 190), Color.White);
                 spriteBatch.Draw(myTexture, dayrec, Color.Transparent);
+                spriteBatch.Draw(nightbut, new Vector2(750, 430), Color.White);
                 spriteBatch.Draw(myTexture, nightrec, Color.Transparent);
-                /*while(true)
-                {
-                       if((c1x < this.GraphicsDevice.Viewport.Width) && c1edge == false)
-                       {
-                         c1x++;
-                         if (c1x == this.GraphicsDevice.Viewport.Width)
-                         {
-                             c1edge = true;
-                         }
-                         break;
-                       
-                       }
-                       else
-                       {
-                         c1x--;
-                           if(c1x==-200)
-                           {
-                             c1edge=false;
-                           }
-                           break;
-                       }
-              }*/
+              
+                spriteBatch.Draw(ssbut, new Vector2(700, 430), Color.White);
+                spriteBatch.Draw(myTexture, ssrec, Color.Transparent);
+
+                spriteBatch.Draw(homebut, new Vector2(10, 430), Color.White);
+                spriteBatch.Draw(myTexture, homerec, Color.Transparent);
+               
+                spriteBatch.Draw(musicbut, new Vector2(60, 430), Color.White);
+                spriteBatch.Draw(myTexture, musicrec, Color.Transparent);
+                spriteBatch.Draw(mutebut, new Vector2(120, 430), Color.White);
+                spriteBatch.Draw(myTexture, muterec, Color.Transparent);
+               
                 int count = 0;
                 //foreach to work through rectangle dictionary
                 foreach (var rec in RectangleDictionary)
@@ -682,9 +724,14 @@ namespace Display
                 }
 
                 KeyboardState state = Keyboard.GetState();
+                MouseState myMouse = Mouse.GetState();
                 totheleft++;
 
                 spriteBatch.End();
+                if (myMouse.LeftButton == ButtonState.Pressed && ssrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    Screenshot(GraphicsDevice);
+                }
                 if (state.IsKeyDown(Keys.S))
                 {
                     Screenshot(GraphicsDevice);
