@@ -24,16 +24,31 @@ namespace Display
     {
         //new GraphicsDeviceManager called graphics
         GraphicsDeviceManager graphics;
-        float timer; 
+        float timer;
+        string filename;
+        string starter = "http://www.";
+        string webaddress = "http://www.";
+        string webaddress2;
+        string webaddress3;
+        StreamWriter writer;
         //new SpriteBatch called spriteBatc
         SpriteBatch spriteBatch;
 
         // new Texture2D called myTexture
         Texture2D myTexture;
+        int titlex = 20;
+        bool titleedge = true;
+        bool filecloudc = false;
+        bool webcloudc = false;
+        bool generatec = false;
+        bool updateaddress = false;
 
         SoundEffect soundEffect;
         SoundEffectInstance soundEffectInstance;
-
+        bool c1edge;
+        int c1x = 200;
+        int c2x = 40;
+        int c3x = 600;
         //int called rnum
         int rnum;
         
@@ -53,7 +68,7 @@ namespace Display
         Dictionary<string, Texture2D> SpriteDictionary = new Dictionary<string, Texture2D>();
         GameState gameState = new GameState();
         //Texture2D
-
+        Texture2D wordcloud;
         Texture2D backdraw;
         Texture2D daybut;
         Texture2D nightbut;
@@ -68,11 +83,26 @@ namespace Display
         Rectangle musicrec;
         Rectangle muterec;
         Rectangle homerec;
+        Texture2D title;
+        Texture2D cloudone;
+        Texture2D cloudtwo;
+        Texture2D cloudthree;
+        Texture2D webcloud;
+        Texture2D webcloudclick;
+        Texture2D filecloud;
+        Texture2D filecloudclick;
+        Texture2D generatecloud;
+        Texture2D barcloud;
+        Rectangle webrec;
+        Rectangle filerec;
+        
+        Rectangle filegenrec;
+        Rectangle webgenrec;
 
         bool skyline = false;
         bool castle = false;
         bool mountain = false;
-
+        string[] keys = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Z", "X", "C", "V", "B", "N", "M" };
         Color WordCountCol;
 
         //An int to move words left in the draw method
@@ -86,7 +116,7 @@ namespace Display
         Rectangle menuColor;
         Rectangle menuFont;
         Rectangle menuRemove;
-
+        KeyboardState oldstate;
         //SpritFont called MenuFont for menu
         SpriteFont menufont;
         String menuCountstr = "";
@@ -112,6 +142,7 @@ namespace Display
         //initialize method
         protected override void Initialize()
         {
+            oldstate = Keyboard.GetState();
             gameState = GameState.Menu;
             //Sets mouse to be visable
             IsMouseVisible = true;
@@ -175,28 +206,40 @@ namespace Display
                 backdraw = Content.Load<Texture2D>("daySkyline1");
                 skyline = true;
             }
-
-
+            cloudone = Content.Load<Texture2D>("cloud");
+            cloudtwo = Content.Load<Texture2D>("CLOUD2");
+            cloudthree = Content.Load<Texture2D>("cloud");
+            filecloud = Content.Load<Texture2D>("fileCloud");
+            filecloudclick = Content.Load<Texture2D>("fileCloudClick");
+            webcloud = Content.Load<Texture2D>("urlCloud");
+            webcloudclick = Content.Load<Texture2D>("urlCloudClick");
             nightbut = Content.Load<Texture2D>("moonbtn");
+            generatecloud = Content.Load<Texture2D>("generate");
+            title = Content.Load<Texture2D>("heading");
+            barcloud = Content.Load<Texture2D>("bar");
+
             daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
             dayrec = new Rectangle(750, 390, nightbut.Bounds.Height, nightbut.Bounds.Width);
          
             nightrec = new Rectangle(750, 430, nightbut.Bounds.Height, nightbut.Bounds.Width);
-
+            filerec = new Rectangle(20, 170, filecloud.Bounds.Height, filecloud.Bounds.Width);
+            webrec = new Rectangle(430, 190, webcloud.Bounds.Width, webcloud.Bounds.Height);
+            webgenrec = new Rectangle(500, 390, generatecloud.Bounds.Height, generatecloud.Bounds.Width);
+            filegenrec = new Rectangle(390, 390, generatecloud.Bounds.Height, generatecloud.Bounds.Width); 
             WordCountCol = Color.White;
 
             ssbut = Content.Load<Texture2D>("cam");
             ssrec = new Rectangle(700, 430, ssbut.Bounds.Height, ssbut.Bounds.Width);
 
             homebut = Content.Load<Texture2D>("home");
-            homerec = new Rectangle(10, 430, homebut.Bounds.Height, homebut.Bounds.Width);
+            homerec = new Rectangle(550, 430, homebut.Bounds.Height, homebut.Bounds.Width);
 
             musicbut = Content.Load<Texture2D>("Music");
-            musicrec = new Rectangle(60, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
+            musicrec = new Rectangle(600, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
 
             mutebut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
-            muterec = new Rectangle(120, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
-            
+            muterec = new Rectangle(650, 430, musicbut.Bounds.Height, musicbut.Bounds.Width);
+            wordcloud = Content.Load<Texture2D>("wordCloud");
             //foreach used to go through words dictionary
             foreach (var word in Words)
             {
@@ -216,7 +259,8 @@ namespace Display
                 FontDictionary.Add(word.Key, myfont);
                 //adds to the color dictionary a new value with the current word and mycolor
                 ColorsDictionary.Add(word.Key, mycolor);
-                //   SpriteDictionary.Add(word.Key, backdraw);
+               
+                SpriteDictionary.Add(word.Key, wordcloud);
 
                 //Vector2 called StringSize initialized with x and y of 30 and 20
                 Vector2 StringSize = new Vector2(30, 20);
@@ -297,11 +341,255 @@ namespace Display
            // soundEffectInstance.Play();
             if (gameState == GameState.Menu)//if gamestate equals menu
             {
+           
+
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && webrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    webcloudc = true;
+                    filecloudc = false;
+                }
+
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && filegenrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    //GAVIN PUT THE GAMESTATE CHANGE HERE TO EXIT FROM MENU TO GAME
+                    gameState = GameState.Game;//gamestate equals game
+                    soundEffectInstance.Play();
+                }
+
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && webgenrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    using (StreamWriter writer = new StreamWriter("thisonelads2.txt"))
+                    {
+                        writer.Write(webaddress);
+                    }
+
+
+                    //GAVING PUT THE GAMESTATECHANGE HERE TO EXIT FROM MENU TO GAME
+                    gameState = GameState.Game;//gamestate equals game
+                    soundEffectInstance.Play();
+                }
+
+                if (webcloudc == true)
+                {
+                    if ((webaddress.Length) < (starter.Length))
+                    {
+                        webaddress = starter;
+                    }
+
+                    /*I HATE THIS SECTION BUT I COULDNT FIND A WAY TO ALLOW ME TO DO A ARRAY OF KEYS AND IMPLEMENT A FOREACH LOOP*/
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Q)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q)))
+                    {
+                        webaddress = webaddress + "q";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.W)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.W)))
+                    {
+                        webaddress = webaddress + "w";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.E)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.E)))
+                    {
+                        webaddress = webaddress + "e";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.R)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.R)))
+                    {
+                        webaddress = webaddress + "r";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.T)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.T)))
+                    {
+                        webaddress = webaddress + "t";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Y)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Y)))
+                    {
+                        webaddress = webaddress + "y";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.U)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.U)))
+                    {
+                        webaddress = webaddress + "I";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.I)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.I)))
+                    {
+                        webaddress = webaddress + "i";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.O)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.O)))
+                    {
+                        webaddress = webaddress + "o";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.P)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.P)))
+                    {
+                        webaddress = webaddress + "p";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.A)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.A)))
+                    {
+                        webaddress = webaddress + "a";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.S)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.S)))
+                    {
+                        webaddress = webaddress + "s";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.D)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.D)))
+                    {
+                        webaddress = webaddress + "d";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.F)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.F)))
+                    {
+                        webaddress = webaddress + "f";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.G)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.G)))
+                    {
+                        webaddress = webaddress + "g";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.H)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.H)))
+                    {
+                        webaddress = webaddress + "h";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.J)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.J)))
+                    {
+                        webaddress = webaddress + "j";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.K)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.K)))
+                    {
+                        webaddress = webaddress + "k";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.L)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.L)))
+                    {
+                        webaddress = webaddress + "l";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Z)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Z)))
+                    {
+                        webaddress = webaddress + "z";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.X)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.X)))
+                    {
+                        webaddress = webaddress + "x";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.C)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.C)))
+                    {
+                        webaddress = webaddress + "c";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.V)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.V)))
+                    {
+                        webaddress = webaddress + "v";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.B)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.B)))
+                    {
+                        webaddress = webaddress + "b";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N)))
+                    {
+                        webaddress = webaddress + "n";
+                    }
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.M)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.M)))
+                    {
+                        webaddress = webaddress + "M";
+                    }
+
+                    if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Back)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Back)) && (webaddress.Length > 0))
+                    {
+                        webaddress2 = webaddress.Substring(0, webaddress.Length - 1);
+                        webaddress = webaddress2;
+                        updateaddress = true;
+                    }
+
+                    oldstate = state;
+                }
+
+
+
+
+
+
+
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && filerec.Contains(myMouse.X, myMouse.Y) && (filecloudc == false))
+                {
+                    webcloudc = false;
+                    filecloudc = true;
+                    System.Diagnostics.Process.Start("ConsoleApplication4.exe");
+
+                }
+
+
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && dayrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    if (skyline == true)
+                    {
+                        if (butpcount == 0)
+                        {
+                            backdraw = Content.Load<Texture2D>("daySkyline1");
+                            nightbut = Content.Load<Texture2D>("moonbtn");
+                            daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+                            butpcount++;
+                        }
+
+                    }
+                    if (castle == true)
+                    {
+                        if (butpcount == 0)
+                        {
+                            backdraw = Content.Load<Texture2D>("dayCastle1");
+                            nightbut = Content.Load<Texture2D>("moonbtn");
+                            daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+                            butpcount++;
+                        }
+
+                    }
+                    if (mountain == true)
+                    {
+                        if (butpcount == 0)
+                        {
+                            backdraw = Content.Load<Texture2D>("dayMountain");
+                            nightbut = Content.Load<Texture2D>("moonbtn");
+                            daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+                            butpcount++;
+                        }
+
+                    }
+                }
+                if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && nightrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    if (skyline == true)
+                    {
+                        if (butpcount == 1)
+                        {
+                            backdraw = Content.Load<Texture2D>("nightSkyline");
+                            daybut = Content.Load<Texture2D>("sunbtn");
+                            nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+                            butpcount = 0;
+
+                        }
+                    }
+                    if (castle == true)
+                    {
+                        if (butpcount == 1)
+                        {
+                            backdraw = Content.Load<Texture2D>("nightCastle");
+                            daybut = Content.Load<Texture2D>("sunbtn");
+                            nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+
+                            butpcount = 0;
+                        }
+                    }
+                    if (mountain == true)
+                    {
+                        if (butpcount == 1)
+                        {
+                            backdraw = Content.Load<Texture2D>("nightMountain");
+                            daybut = Content.Load<Texture2D>("sunbtn");
+                            nightbut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
+                            WordCountCol = Color.White;
+                            butpcount = 0;
+                        }
+                    }
+                }
                 if (state.IsKeyDown(Keys.Enter))//if enter is pressed
                 {
                     gameState = GameState.Game;//gamestate equals game
                     soundEffectInstance.Play();
                 }
+
 
             }
             else if (gameState == GameState.Game)
@@ -309,25 +597,11 @@ namespace Display
                // soundEffectInstance.Play();
                 if (myMouse.LeftButton == ButtonState.Pressed && homerec.Contains(myMouse.X, myMouse.Y))
                 {
+
                     gameState = GameState.Menu;
                     soundEffectInstance.Stop();
                 }
-               /* if (myMouse.LeftButton == ButtonState.Pressed && musicrec.Contains(myMouse.X, myMouse.Y))
-                {
-                    if (musicbutpcount == 1)
-                    {
-                        musicbut = Content.Load<Texture2D>("mute");
-                        soundEffectInstance.Stop();
-                        musicbutpcount = 0;
-                    }
-                    if (musicbutpcount == 0)
-                    {
-                        musicbut = Content.Load<Texture2D>("Music");
-                        soundEffectInstance.Play();
-                        musicbutpcount++;
-                    }
-
-                }*/
+              
                 if (myMouse.LeftButton == ButtonState.Pressed && muterec.Contains(myMouse.X, myMouse.Y))
                 {
                     if (musicbutpcount == 0)
@@ -629,9 +903,107 @@ namespace Display
         {
             if (gameState == GameState.Menu)//if gamestate equals menu
             {
-                GraphicsDevice.Clear(Color.Tomato);
                 spriteBatch.Begin();
-                spriteBatch.DrawString(menufont, "Menu", new Vector2(50, 50), Color.Black);
+                spriteBatch.Draw(backdraw, new Vector2(0, 0), Color.White);
+                spriteBatch.Draw(title, new Vector2(150, titlex), Color.White);
+                spriteBatch.Draw(cloudone, new Vector2(c1x, 200), Color.White);
+                spriteBatch.Draw(cloudthree, new Vector2(200, c3x), Color.White);
+                spriteBatch.Draw(daybut, new Vector2(750, 390), Color.White);
+                spriteBatch.Draw(nightbut, new Vector2(750, 430), Color.White);
+
+                if (filecloudc == false)
+                {
+                    spriteBatch.Draw(filecloud, new Vector2(20, 170), Color.White);
+                }
+                else
+                {
+                    spriteBatch.Draw(filecloudclick, new Vector2(20, 170), Color.White);
+                    generatec = true;
+                }
+                if (webcloudc == false)
+                {
+                    spriteBatch.Draw(webcloud, new Vector2(430, 190), Color.White);
+
+                }
+                else
+                {
+                    spriteBatch.Draw(webcloudclick, new Vector2(430, 190), Color.White);
+                    generatec = true;
+                }
+
+
+                if (generatec == true && webcloudc == true)
+                {
+                    spriteBatch.Draw(generatecloud, new Vector2(500, 390), Color.White);
+                    spriteBatch.Draw(barcloud, new Vector2(70, 390), Color.White);
+
+                    SpriteFont myfont =Content.Load<SpriteFont>("myFont");
+                    if (((webaddress.Length) > 23))
+                    {
+
+                        webaddress3 = webaddress.Substring(webaddress.Length - 19);
+                        updateaddress = false;
+                        spriteBatch.DrawString(myfont, webaddress3, new Vector2(74, 392), Color.Black);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(myfont, webaddress, new Vector2(74, 392), Color.Black);
+
+                    }
+                }
+                if (generatec == true && filecloudc == true)
+                {
+                    spriteBatch.Draw(generatecloud, new Vector2(390, 390), Color.White);
+                }
+                spriteBatch.Draw(myTexture, dayrec, Color.Transparent);
+                spriteBatch.Draw(myTexture, nightrec, Color.Transparent);
+
+                while (true)
+                {
+                    if (titlex < 50 && titleedge == true)
+                    {
+                        titlex++;
+                        if (titlex == 50)
+                        {
+                            titleedge = false;
+                        }
+
+                    }
+                    else
+                    {
+                        titlex--;
+                        if (titlex == 20)
+                        {
+                            titleedge = true;
+                        }
+                    }
+
+
+                    if ((c1x < this.GraphicsDevice.Viewport.Width) && c1edge == false)
+                    {
+                        c1x++;
+                        if (c1x == this.GraphicsDevice.Viewport.Width)
+                        {
+                            c1edge = true;
+                        }
+                        break;
+
+                    }
+                    else
+                    {
+                        c1x--;
+                        if (c1x == -200)
+                        {
+                            c1edge = false;
+                        }
+                        break;
+                    }
+
+                }
+
+
+                totheleft++;
+
                 spriteBatch.End();
             }
             if (gameState == GameState.Game)//if gamestate equals game
@@ -649,12 +1021,12 @@ namespace Display
                 spriteBatch.Draw(ssbut, new Vector2(700, 430), Color.White);
                 spriteBatch.Draw(myTexture, ssrec, Color.Transparent);
 
-                spriteBatch.Draw(homebut, new Vector2(10, 430), Color.White);
+                spriteBatch.Draw(homebut, new Vector2(550, 430), Color.White);
                 spriteBatch.Draw(myTexture, homerec, Color.Transparent);
                
-                spriteBatch.Draw(musicbut, new Vector2(60, 430), Color.White);
+                spriteBatch.Draw(musicbut, new Vector2(600, 430), Color.White);
                 spriteBatch.Draw(myTexture, musicrec, Color.Transparent);
-                spriteBatch.Draw(mutebut, new Vector2(120, 430), Color.White);
+                spriteBatch.Draw(mutebut, new Vector2(650, 430), Color.White);
                 spriteBatch.Draw(myTexture, muterec, Color.Transparent);
                
                 int count = 0;
@@ -675,28 +1047,14 @@ namespace Display
                     // float rectangle and string angle 
                     float recangle = 0.0f;
                     float strangle = 0.0f;
-
-                    /* if (rnum == count)
-                     {
-                         recangle = 0.0f;
-                         recorigin = new Vector2();
-
-                         strangle = (float)Math.PI;
-                         strorigin = new Vector2((int)strsiz.X, (int)strsiz.Y);
-                    
-
-                     }*/
-
-
-
-
+                    //spriteBatch.Draw(SpriteDictionary[rec.Key], new Vector2(rec.Value.X - 30, rec.Value.Y-3), Color.White);
                     //Draws all the rectangles
                     spriteBatch.Draw(myTexture, rec.Value, null, Color.Snow, recangle, recorigin, SpriteEffects.None, 0.0f);
 
                     //Draws all the strings
                     spriteBatch.DrawString(FontDictionary[rec.Key], rec.Key, V, ColorsDictionary[rec.Key],
                             strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
-
+                    
 
 
 
