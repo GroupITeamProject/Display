@@ -115,9 +115,6 @@ namespace Display
         //An int to move words left in the draw method
         int totheleft = 10;
 
-        //biggest word in the words dictonary
-        string biggestword;
-
         GameState currentgamestate;
 
         //initialze of rectangles to make up menu
@@ -330,8 +327,6 @@ namespace Display
 
             }
 
-            biggestword = biggestWord();
-
         }
 
 
@@ -389,6 +384,7 @@ namespace Display
                     soundEffectInstance.Play();
                 }
 
+                #region Enda's Key Arrays for URL entry
                 if (webcloudc == true)
                 {
                     if ((webaddress.Length) < (starter.Length))
@@ -499,7 +495,7 @@ namespace Display
                     }
                     if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.M)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.M)))
                     {
-                        webaddress = webaddress + "M";
+                        webaddress = webaddress + "m";
                     }
 
                     if ((oldstate.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Back)) && (state.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Back)) && (webaddress.Length > 0))
@@ -511,13 +507,10 @@ namespace Display
 
                     oldstate = state;
                 }
+                #endregion
 
 
-
-
-
-
-
+                #region MouseInputs
                 if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && filerec.Contains(myMouse.X, myMouse.Y) && (filecloudc == false))
                 {
                     webcloudc = false;
@@ -726,8 +719,10 @@ namespace Display
                         }
                     }
                 }
+                #endregion
 
 
+                #region Menu Selection And Input
                 //foreach used to go through rectangle dictionary
                 foreach (var rec in RectangleDictionary)
                 {
@@ -883,6 +878,10 @@ namespace Display
             base.Update(gameTime);
 
         }
+
+                #endregion
+
+        #region PublicMethods
         //remove stuff method
         public void removestuff()
         {
@@ -928,40 +927,9 @@ namespace Display
             t2d.Dispose();
         }
 
-        public float fontScale(int biggest, int newword)
-        {
-            float myfloat;
+#endregion
 
 
-            myfloat = (float)((biggest - newword) / biggest) - 1.0f;
-
-            if (myfloat < 0.3f)
-            {
-                //myfloat = 0.3f;
-            }
-
-            return myfloat;
-        }
-        public string biggestWord()
-        {
-            string bw = "";
-            int myint = 0;
-
-            foreach (var x in Words)
-            {
-                if (x.Key == "")
-                {
-                    
-                }
-                else if (x.Value > myint)
-                {
-                    myint = x.Value;
-                    bw = x.Key;
-                }
-                
-            }
-            return bw;
-        }
         protected override void Draw(GameTime gameTime)
         {
             if (gameState == GameState.Menu)//if gamestate equals menu
@@ -1111,15 +1079,16 @@ namespace Display
                     foreach (var font in FontDictionary)
                     {
                         strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
+                        
                     }
                     // float rectangle and string angle 
                     float recangle = 0.0f;
                     float strangle = 0.0f;
-                    
 
-                    
-                    float recscale = 1.0f;
-                    float strscale = 1.0f;
+
+
+                    float recscale = returnFontSize(Words[rec.Key]);
+                    float strscale = recscale;
                     //spriteBatch.Draw(SpriteDictionary[rec.Key], new Vector2(rec.Value.X - 30, rec.Value.Y-3), Color.White);
                     //Draws all the rectangles
                     //spriteBatch.Draw(myTexture, rec.Value, null, Color.Snow, recangle, recorigin, SpriteEffects.None, 0.0f);
@@ -1179,5 +1148,27 @@ namespace Display
             base.Draw(gameTime);
         }
 
+        public float returnFontSize(int size)
+        {
+            float temp = 0;
+
+            if (size >= 999)
+            {
+                temp = size / 1000.0f;
+            }
+            else if (size < 999)
+            {
+                temp = size / 1000.0f;
+            }
+
+            if (temp < 0.25f)
+            {
+                temp = 0.25f;
+            }
+            
+            return temp;
+        }
+
     }
+
 }
