@@ -16,7 +16,8 @@ namespace Display
     public enum GameState//gamestates
     {
         Menu,
-        Game
+        Game,
+        Userman
     }
 
     // This is the class called from Program.cs 
@@ -51,10 +52,10 @@ namespace Display
         int c3x = 600;
         //int called rnum
         int rnum;
-        
+
 
         //A Dictionary takes in a string of words from a file
-        Dictionary<string, int> Words = new Dictionary<string, int>();
+       Dictionary<string, int> Words = new Dictionary<string, int>();
 
         //A Dictionary to hold Strings and Rectangles
         Dictionary<string, Rectangle> RectangleDictionary = new Dictionary<string, Rectangle>();
@@ -76,7 +77,6 @@ namespace Display
         Texture2D musicbut;
         Texture2D mutebut;
         Texture2D homebut;
-      
         Rectangle dayrec;
         Rectangle nightrec;
         Rectangle ssrec;
@@ -93,11 +93,18 @@ namespace Display
         Texture2D filecloudclick;
         Texture2D generatecloud;
         Texture2D barcloud;
+
         Rectangle webrec;
         Rectangle filerec;
-        
+
         Rectangle filegenrec;
         Rectangle webgenrec;
+        
+        Texture2D uman;
+        Rectangle umanrec;
+
+        Texture2D backbut;
+        Rectangle backrec;
 
         bool skyline = false;
         bool castle = false;
@@ -108,8 +115,10 @@ namespace Display
         //An int to move words left in the draw method
         int totheleft = 10;
 
+        //biggest word in the words dictonary
+        string biggestword;
 
-      
+        GameState currentgamestate;
 
         //initialze of rectangles to make up menu
         Rectangle menuCount;
@@ -155,7 +164,7 @@ namespace Display
 
         protected override void LoadContent()
         {
-            
+
             //new randon rnd
             Random rnd = new Random();
             //rnum set to random number between 0 and 15
@@ -220,13 +229,19 @@ namespace Display
 
             daybut = new Texture2D(GraphicsDevice, 5, 5, false, SurfaceFormat.Color);
             dayrec = new Rectangle(750, 390, nightbut.Bounds.Height, nightbut.Bounds.Width);
-         
+
             nightrec = new Rectangle(750, 430, nightbut.Bounds.Height, nightbut.Bounds.Width);
             filerec = new Rectangle(20, 170, filecloud.Bounds.Height, filecloud.Bounds.Width);
             webrec = new Rectangle(430, 190, webcloud.Bounds.Width, webcloud.Bounds.Height);
             webgenrec = new Rectangle(500, 390, generatecloud.Bounds.Height, generatecloud.Bounds.Width);
-            filegenrec = new Rectangle(390, 390, generatecloud.Bounds.Height, generatecloud.Bounds.Width); 
+            filegenrec = new Rectangle(390, 390, generatecloud.Bounds.Height, generatecloud.Bounds.Width);
             WordCountCol = Color.White;
+
+            uman = Content.Load<Texture2D>("help");
+            umanrec = new Rectangle(500, 430, uman.Bounds.Height, uman.Bounds.Width);
+
+            backbut = Content.Load<Texture2D>("back");
+            backrec = new Rectangle(10, 430, backbut.Bounds.Height, backbut.Bounds.Width);
 
             ssbut = Content.Load<Texture2D>("cam");
             ssrec = new Rectangle(700, 430, ssbut.Bounds.Height, ssbut.Bounds.Width);
@@ -259,7 +274,7 @@ namespace Display
                 FontDictionary.Add(word.Key, myfont);
                 //adds to the color dictionary a new value with the current word and mycolor
                 ColorsDictionary.Add(word.Key, mycolor);
-               
+
                 SpriteDictionary.Add(word.Key, wordcloud);
 
                 //Vector2 called StringSize initialized with x and y of 30 and 20
@@ -288,7 +303,7 @@ namespace Display
                     //add to the rectangle dictionary with a recname as key an  new rectangle with x and y of cols and rows
                     //and height and width of the Stringsize
                     RectangleDictionary.Add(recName, new Rectangle(cols, rows, (int)StringSize.X, (int)StringSize.Y));
-                   
+
                 }
 
                 if (RectangleDictionary.Count == 10)
@@ -315,6 +330,7 @@ namespace Display
 
             }
 
+            biggestword = biggestWord();
 
         }
 
@@ -324,7 +340,7 @@ namespace Display
 
         }
 
-       
+
 
         protected override void Update(GameTime gameTime)
         {
@@ -338,17 +354,21 @@ namespace Display
             MouseState myMouse = Mouse.GetState();
             //new keyboardstate state
             KeyboardState state = Keyboard.GetState();
-           // soundEffectInstance.Play();
+            // soundEffectInstance.Play();
             if (gameState == GameState.Menu)//if gamestate equals menu
             {
-           
+
 
                 if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && webrec.Contains(myMouse.X, myMouse.Y))
                 {
                     webcloudc = true;
                     filecloudc = false;
                 }
-
+                if (myMouse.LeftButton == ButtonState.Pressed && umanrec.Contains(myMouse.X, myMouse.Y))
+                {
+                    gameState = GameState.Userman;
+                    currentgamestate = GameState.Menu;
+                }
                 if (myMouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && filegenrec.Contains(myMouse.X, myMouse.Y))
                 {
                     //GAVIN PUT THE GAMESTATE CHANGE HERE TO EXIT FROM MENU TO GAME
@@ -594,14 +614,19 @@ namespace Display
             }
             else if (gameState == GameState.Game)
             {
-               // soundEffectInstance.Play();
+                // soundEffectInstance.Play();
                 if (myMouse.LeftButton == ButtonState.Pressed && homerec.Contains(myMouse.X, myMouse.Y))
                 {
-
                     gameState = GameState.Menu;
                     soundEffectInstance.Stop();
                 }
-              
+                 if (myMouse.LeftButton == ButtonState.Pressed && umanrec.Contains(myMouse.X, myMouse.Y))
+                     {
+                         gameState = GameState.Userman;
+                         soundEffectInstance.Stop();
+                         currentgamestate = GameState.Game;
+                     }
+
                 if (myMouse.LeftButton == ButtonState.Pressed && muterec.Contains(myMouse.X, myMouse.Y))
                 {
                     if (musicbutpcount == 0)
@@ -701,12 +726,6 @@ namespace Display
                         }
                     }
                 }
-                
-               
-
-
-
-
 
 
                 //foreach used to go through rectangle dictionary
@@ -809,6 +828,7 @@ namespace Display
                             //new stringsiz empty vector2
                             Vector2 strsiz = new Vector2();
 
+
                             FontDictionary[rec.Key] = Content.Load<SpriteFont>("MyFont2");
                             strsiz = FontDictionary[rec.Key].MeasureString(rec.Key);
                             //ox and oy are equal to the rec.value.x and y
@@ -846,10 +866,19 @@ namespace Display
                         this.removestuff();
 
                     }
-
+                    
 
                 }
 
+            }
+            else if (gameState == GameState.Userman)
+            {
+                if (myMouse.LeftButton == ButtonState.Pressed && homerec.Contains(myMouse.X, myMouse.Y))
+                {
+
+                    gameState = currentgamestate;
+                    
+                }
             }
             base.Update(gameTime);
 
@@ -897,8 +926,42 @@ namespace Display
             st.Close();
 
             t2d.Dispose();
-        } 
+        }
 
+        public float fontScale(int biggest, int newword)
+        {
+            float myfloat;
+
+
+            myfloat = (float)((biggest - newword) / biggest) - 1.0f;
+
+            if (myfloat < 0.3f)
+            {
+                //myfloat = 0.3f;
+            }
+
+            return myfloat;
+        }
+        public string biggestWord()
+        {
+            string bw = "";
+            int myint = 0;
+
+            foreach (var x in Words)
+            {
+                if (x.Key == "")
+                {
+                    
+                }
+                else if (x.Value > myint)
+                {
+                    myint = x.Value;
+                    bw = x.Key;
+                }
+                
+            }
+            return bw;
+        }
         protected override void Draw(GameTime gameTime)
         {
             if (gameState == GameState.Menu)//if gamestate equals menu
@@ -937,7 +1000,7 @@ namespace Display
                     spriteBatch.Draw(generatecloud, new Vector2(500, 390), Color.White);
                     spriteBatch.Draw(barcloud, new Vector2(70, 390), Color.White);
 
-                    SpriteFont myfont =Content.Load<SpriteFont>("myFont");
+                    SpriteFont myfont = Content.Load<SpriteFont>("myFont");
                     if (((webaddress.Length) > 23))
                     {
 
@@ -957,6 +1020,8 @@ namespace Display
                 }
                 spriteBatch.Draw(myTexture, dayrec, Color.Transparent);
                 spriteBatch.Draw(myTexture, nightrec, Color.Transparent);
+                spriteBatch.Draw(uman, new Vector2(500, 430), Color.White);
+                spriteBatch.Draw(myTexture, umanrec, Color.Transparent);
 
                 while (true)
                 {
@@ -1012,23 +1077,26 @@ namespace Display
 
                 spriteBatch.Begin();
                 spriteBatch.Draw(backdraw, new Vector2(0, 0), Color.White);
-               
+
                 spriteBatch.Draw(daybut, new Vector2(750, 390), Color.White);
                 spriteBatch.Draw(myTexture, dayrec, Color.Transparent);
                 spriteBatch.Draw(nightbut, new Vector2(750, 430), Color.White);
                 spriteBatch.Draw(myTexture, nightrec, Color.Transparent);
-              
+
+                spriteBatch.Draw(uman, new Vector2(500, 430), Color.White);
+                spriteBatch.Draw(myTexture, umanrec, Color.Transparent);
+
                 spriteBatch.Draw(ssbut, new Vector2(700, 430), Color.White);
                 spriteBatch.Draw(myTexture, ssrec, Color.Transparent);
 
                 spriteBatch.Draw(homebut, new Vector2(550, 430), Color.White);
                 spriteBatch.Draw(myTexture, homerec, Color.Transparent);
-               
+
                 spriteBatch.Draw(musicbut, new Vector2(600, 430), Color.White);
                 spriteBatch.Draw(myTexture, musicrec, Color.Transparent);
                 spriteBatch.Draw(mutebut, new Vector2(650, 430), Color.White);
                 spriteBatch.Draw(myTexture, muterec, Color.Transparent);
-               
+
                 int count = 0;
                 //foreach to work through rectangle dictionary
                 foreach (var rec in RectangleDictionary)
@@ -1047,14 +1115,19 @@ namespace Display
                     // float rectangle and string angle 
                     float recangle = 0.0f;
                     float strangle = 0.0f;
+                    
+
+                    
+                    float recscale = 1.0f;
+                    float strscale = 1.0f;
                     //spriteBatch.Draw(SpriteDictionary[rec.Key], new Vector2(rec.Value.X - 30, rec.Value.Y-3), Color.White);
                     //Draws all the rectangles
-                    spriteBatch.Draw(myTexture, rec.Value, null, Color.Snow, recangle, recorigin, SpriteEffects.None, 0.0f);
+                    //spriteBatch.Draw(myTexture, rec.Value, null, Color.Snow, recangle, recorigin, SpriteEffects.None, 0.0f);
+                    spriteBatch.Draw(myTexture, V, rec.Value, Color.Green, recangle, recorigin, recscale, SpriteEffects.None, 0.0f);
 
                     //Draws all the strings
                     spriteBatch.DrawString(FontDictionary[rec.Key], rec.Key, V, ColorsDictionary[rec.Key],
-                            strangle, strorigin, 1.0f, SpriteEffects.None, 0.0f);
-                    
+                            strangle, strorigin, strscale, SpriteEffects.None, 0.0f);
 
 
 
@@ -1090,12 +1163,21 @@ namespace Display
                 {
                     Screenshot(GraphicsDevice);
                 }
-                if (state.IsKeyDown(Keys.S))
-                {
-                    Screenshot(GraphicsDevice);
-                }
+
+            }
+            if (gameState == GameState.Userman)
+            {
+                GraphicsDevice.Clear(Color.AliceBlue);
+                spriteBatch.Begin();
+               //spriteBatch.DrawString(menufont, Words., new Vector2(50, 50), Color.Black);
+                spriteBatch.DrawString(menufont, "User Manual", new Vector2(50, 50), Color.Black);
+                spriteBatch.Draw(backbut, new Vector2(10, 430), Color.White);
+                spriteBatch.Draw(myTexture, backrec, Color.Transparent);
+                
+                spriteBatch.End();
             }
             base.Draw(gameTime);
         }
+
     }
 }
